@@ -2,32 +2,43 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
     entry: {
-        main:'./src/main.js',
-        print:'./src/print.js'
+        //此次引入中，main.js和another.js都引入了lodash库，包含了重复的代码
+        // main:'./src/main.js',
+        // another:'./src/another.js'
+
+        //设置入口依赖
+        main: {
+            import: "./src/main.js",
+            dependOn: "shared"
+        },
+        another: {
+            import: "./src/another.js",
+            dependOn: "shared"
+        },
+        //设置共享的库
+        shared: 'lodash',
     },
 
     output: {
-        filename: '[name].js',
+        filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
-        //每次构建都回去清除dist文件夹
+        //每次构建都会去清除dist文件夹
         clean: true,
     },
-
-    //每次更新后手动打包，webpack代码变化后自动打包
-
-    //1.watch mode（观察者模式）
-      /*在package.json文件，script添加  "watch":"webpack --watch"*/
-    
-    //2.npm install --save-dev webpack-dev-server,安装dev-server
-    devserver:{
-    //static属性，告诉要从哪查找文件
-        static:'./dist'
-    },
+    //多入口需要设置这个属性
     optimization: {
-        //因为有多个入口文件，所以添加了这个属性
         runtimeChunk: 'single',
+        //splitchunks可以将以来的模块提取到已有的入口chunk中去，或生成一个新的chunk
+        splitChunks: {
+            chunks: 'all',
+        },
     },
-    //将环境设置为development
+    /*
+    代码分离的三种方式
+    1.入口起点：使用entry配置手动分离代码。
+    2.防止重复： Entry dependencies 或者 SplitChunksPlugin去重和分离chunk
+    3.动态导入：模块的内联函数来分离代码
+    */
     mode: 'development',
 
     //设置sourcemap
@@ -47,19 +58,19 @@ module.exports = {
             },
             //处理image
             {
-                test:/\.(png|svg|jpg|jpeg)$/i,
-                type:"asset/resource"
+                test: /\.(png|svg|jpg|jpeg)$/i,
+                type: "asset/resource"
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/i,
-                type:"asset/resource"
+                type: "asset/resource"
             }
         ]
     },
-    plugins:[
+    plugins: [
         //在目标文件（dist）生成html模板文件
         new HtmlWebpackPlugin({
-            title:"webpack",
+            title: "webpack",
         })
     ]
 };
