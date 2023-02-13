@@ -1,14 +1,15 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require("webpack");
 module.exports = (env) => {
   /*
   webpack 命令行 环境配置 的 --env 参数，可以允许你传入任意数量的环境变量。
   而在 webpack.config.js 中可以访问到这些环境变量。
   例如，--env production 或 --env goal=local。
   */
-  console.log(env.goal);
-  console.log('Production: ', env.production);
+
   return {
+    target: 'web',
     entry: {
       //此次引入中，main.js和another.js都引入了lodash库，包含了重复的代码
       // main:'./src/main.js',
@@ -26,6 +27,16 @@ module.exports = (env) => {
       //设置共享的库
       // shared: 'lodash',
     },
+
+
+    //webpack-dev-server v4.0.0,热模块替换是自动开启的
+    devServer: {
+      // static: './dist',
+      //   //开启热模块
+      //   hot: true,
+      open: true,
+    },
+
 
     output: {
       filename: '[name].[contenthash].js',
@@ -109,7 +120,8 @@ module.exports = (env) => {
       //在目标文件（dist）生成html模板文件
       new HtmlWebpackPlugin({
         title: "webpack",
-      })
+      }),
+      new webpack.HotModuleReplacementPlugin()
     ],
     //缓存
     /*通过必要的配置，以确保 webpack 编译生成的文件能够被客户端缓存，而在文件内容变化后，能够请求到新的文件。*/

@@ -19,3 +19,9 @@ function component() {
 }
 
 document.body.appendChild(component());
+
+if(module.hot){
+    module.hot.accept('./print.js',()=>{
+        console.log("热更新启动了，文件刷新了");
+    })
+}
